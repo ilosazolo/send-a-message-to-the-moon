@@ -176,18 +176,19 @@ button:hover { opacity: 0.85; }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* // Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDCbs56mQI39FUgJGSklIjvWyKIrjTO-b4",
-  authDomain: "send-a-message-to-the-moon.firebaseapp.com",
-  projectId: "send-a-message-to-the-moon",
-  storageBucket: "send-a-message-to-the-moon.firebasestorage.app",
-  messagingSenderId: "898877809366",
-  appId: "1:898877809366:web:02d78e76ddd963446adf77"
-};
+/*  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDCbs56mQI39FUgJGSklIjvWyKIrjTO-b4",
+    authDomain: "send-a-message-to-the-moon.firebaseapp.com",
+    projectId: "send-a-message-to-the-moon",
+    storageBucket: "send-a-message-to-the-moon.firebasestorage.app",
+    messagingSenderId: "898877809366",
+    appId: "1:898877809366:web:02d78e76ddd963446adf77"
+  };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 };
 
 const app = initializeApp(firebaseConfig);

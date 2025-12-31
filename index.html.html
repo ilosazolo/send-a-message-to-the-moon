@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Send a Message to the Moon</title>
+
+<!-- Pixel Font -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: black;
+    color: #eee;
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+}
+
+.stars {
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+}
+
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    animation: shoot linear infinite;
+}
+
+@keyframes shoot {
+    from { transform: translateY(-100px); opacity: 1; }
+    to { transform: translateY(100vh) translateX(200px); opacity: 0; }
+}
+
+/* Pixel Moon */
+.moon {
+    position: fixed;
+    top: 80px;
+    right: 80px;
+    width: 120px;
+    height: 120px;
+    background: #ddd;
+    image-rendering: pixelated;
+    box-shadow:
+        0 0 0 4px #bbb,
+        0 0 0 8px #999;
+    z-index: -2;
+}
+
+.container {
+    max-width: 850px;
+    margin: auto;
+    padding: 50px 20px;
+}
+
+h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.desc {
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.8;
+    margin-bottom: 35px;
+}
+
+.form-box {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+input, textarea {
+    width: 100%;
+    background: transparent;
+    border: 1px solid #666;
+    color: #eee;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-family: inherit;
+}
+
+textarea {
+    height: 100px;
+    resize: none;
+}
+
+button {
+    background: white;
+    color: black;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover { opacity: 0.85; }
+
+.search {
+    margin-bottom: 25px;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    background: rgba(255,255,255,0.07);
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.card .for {
+    font-style: italic;
+    opacity: 0.7;
+    margin-bottom: 6px;
+}
+
+.card .author {
+    text-align: right;
+    font-size: 11px;
+    opacity: 0.6;
+    margin-top: 10px;
+}
+
+.footer {
+    text-align: center;
+    font-size: 9px;
+    opacity: 0.4;
+    margin-top: 40px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="moon"></div>
+
+<div class="container">
+    <h1>Send a message to the moon</h1>
+    <div class="desc">
+        there are things and thoughts that are always left unsaid, its okay to share them with the moon
+    </div>
+
+    <div class="form-box">
+        <input id="forWho" placeholder="For: someone">
+        <input id="author" placeholder="Your name (leave empty for anonymous)">
+        <textarea id="text" placeholder="Post a message here for someone"></textarea>
+        <button onclick="sendMessage()">Send to the moon 🌙</button>
+    </div>
+
+    <input class="search" id="search" placeholder="Search a name or message..." oninput="renderMessages()">
+
+    <div class="gallery" id="gallery"></div>
+
+    <div class="footer">made by ilosa zolo</div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/*  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDCbs56mQI39FUgJGSklIjvWyKIrjTO-b4",
+    authDomain: "send-a-message-to-the-moon.firebaseapp.com",
+    projectId: "send-a-message-to-the-moon",
+    storageBucket: "send-a-message-to-the-moon.firebasestorage.app",
+    messagingSenderId: "898877809366",
+    appId: "1:898877809366:web:02d78e76ddd963446adf77"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const colRef = collection(db, "messages");
+
+const gallery = document.getElementById("gallery");
+const searchInput = document.getElementById("search");
+let allMessages = [];
+
+onSnapshot(query(colRef, orderBy("time", "desc")), snap => {
+    allMessages = snap.docs.map(d => d.data());
+    renderMessages();
+});
+
+window.sendMessage = async function () {
+    const text = document.getElementById("text").value.trim();
+    if (!text) return;
+
+    await addDoc(colRef, {
+        for: document.getElementById("forWho").value || "someone",
+        author: document.getElementById("author").value || "anonymous",
+        text,
+        time: Date.now()
+    });
+
+    document.getElementById("text").value = "";
+};
+
+function renderMessages() {
+    const q = searchInput.value.toLowerCase();
+    gallery.innerHTML = "";
+
+    allMessages
+        .filter(m =>
+            m.for.toLowerCase().includes(q) ||
+            m.text.toLowerCase().includes(q)
+        )
+        .forEach(m => {
+            const c = document.createElement("div");
+            c.className = "card";
+            c.innerHTML = `
+                <div class="for">For: ${m.for}</div>
+                <div>${m.text}</div>
+                <div class="author">— ${m.author}</div>
+            `;
+            gallery.appendChild(c);
+        });
+}
+
+/* Stars */
+const stars = document.getElementById("stars");
+for (let i = 0; i < 120; i++) {
+    const s = document.createElement("div");
+    s.className = "star";
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.top = Math.random() * 100 + "vh";
+    s.style.animationDuration = (2 + Math.random() * 3) + "s";
+    stars.appendChild(s);
+}
+</script>
+
+</body>
+</html>

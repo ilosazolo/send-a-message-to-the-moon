@@ -171,84 +171,80 @@ button:hover { opacity: 0.85; }
     <div class="footer">made by ilosa zolo</div>
 </div>
 
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<!-- Firebase v8 CDN -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-/*  // Your web app's Firebase configuration
-  const firebaseConfig = {
+<script>
+  // Firebase configuration
+  var firebaseConfig = {
     apiKey: "AIzaSyDCbs56mQI39FUgJGSklIjvWyKIrjTO-b4",
     authDomain: "send-a-message-to-the-moon.firebaseapp.com",
     projectId: "send-a-message-to-the-moon",
-    storageBucket: "send-a-message-to-the-moon.firebasestorage.app",
+    storageBucket: "send-a-message-to-the-moon.appspot.com",
     messagingSenderId: "898877809366",
     appId: "1:898877809366:web:02d78e76ddd963446adf77"
   };
-
   // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
-};
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.firestore();
+  var colRef = db.collection("messages");
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const colRef = collection(db, "messages");
+  var gallery = document.getElementById("gallery");
+  var searchInput = document.getElementById("search");
+  var allMessages = [];
 
-const gallery = document.getElementById("gallery");
-const searchInput = document.getElementById("search");
-let allMessages = [];
-
-onSnapshot(query(colRef, orderBy("time", "desc")), snap => {
-    allMessages = snap.docs.map(d => d.data());
+  // Listen for messages
+  colRef.orderBy("time", "desc").onSnapshot(function(snapshot) {
+    allMessages = snapshot.docs.map(function(doc) { return doc.data(); });
     renderMessages();
-});
+  });
 
-window.sendMessage = async function () {
-    const text = document.getElementById("text").value.trim();
+  // Send message
+  window.sendMessage = function() {
+    var text = document.getElementById("text").value.trim();
     if (!text) return;
 
-    await addDoc(colRef, {
-        for: document.getElementById("forWho").value || "someone",
-        author: document.getElementById("author").value || "anonymous",
-        text,
-        time: Date.now()
+    colRef.add({
+      for: document.getElementById("forWho").value || "someone",
+      author: document.getElementById("author").value || "anonymous",
+      text: text,
+      time: Date.now()
     });
 
     document.getElementById("text").value = "";
-};
+  };
 
-function renderMessages() {
-    const q = searchInput.value.toLowerCase();
+  // Render messages
+  function renderMessages() {
+    var q = searchInput.value.toLowerCase();
     gallery.innerHTML = "";
-
     allMessages
-        .filter(m =>
-            m.for.toLowerCase().includes(q) ||
-            m.text.toLowerCase().includes(q)
-        )
-        .forEach(m => {
-            const c = document.createElement("div");
-            c.className = "card";
-            c.innerHTML = `
-                <div class="for">For: ${m.for}</div>
-                <div>${m.text}</div>
-                <div class="author">— ${m.author}</div>
-            `;
-            gallery.appendChild(c);
-        });
-}
+      .filter(function(m) {
+        return m.for.toLowerCase().includes(q) || m.text.toLowerCase().includes(q);
+      })
+      .forEach(function(m) {
+        var c = document.createElement("div");
+        c.className = "card";
+        c.innerHTML = `
+          <div class="for">For: ${m.for}</div>
+          <div>${m.text}</div>
+          <div class="author">— ${m.author}</div>
+        `;
+        gallery.appendChild(c);
+      });
+  }
 
-/* Stars */
-const stars = document.getElementById("stars");
-for (let i = 0; i < 120; i++) {
-    const s = document.createElement("div");
-    s.className = "star";
-    s.style.left = Math.random() * 100 + "vw";
-    s.style.top = Math.random() * 100 + "vh";
-    s.style.animationDuration = (2 + Math.random() * 3) + "s";
-    stars.appendChild(s);
-}
+  // Stars animation
+  const stars = document.getElementById("stars");
+  for (let i = 0; i < 120; i++) {
+      const s = document.createElement("div");
+      s.className = "star";
+      s.style.left = Math.random() * 100 + "vw";
+      s.style.top = Math.random() * 100 + "vh";
+      s.style.animationDuration = (2 + Math.random() * 3) + "s";
+      stars.appendChild(s);
+  }
 </script>
 
 </body>

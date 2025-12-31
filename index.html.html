@@ -37,21 +37,6 @@ body {
     to { transform: translateY(100vh) translateX(200px); opacity: 0; }
 }
 
-/* Pixel Moon */
-.moon {
-    position: fixed;
-    top: 80px;
-    right: 80px;
-    width: 120px;
-    height: 120px;
-    background: #ddd;
-    image-rendering: pixelated;
-    box-shadow:
-        0 0 0 4px #bbb,
-        0 0 0 8px #999;
-    z-index: -2;
-}
-
 .container {
     max-width: 850px;
     margin: auto;
@@ -149,7 +134,6 @@ button:hover { opacity: 0.85; }
 <body>
 
 <div class="stars" id="stars"></div>
-<div class="moon"></div>
 
 <div class="container">
     <h1>Send a message to the moon</h1>
@@ -253,3 +237,4 @@ for (let i = 0; i < 120; i++) {
 
 </body>
 </html>
+
